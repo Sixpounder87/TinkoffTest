@@ -40,6 +40,8 @@ public class TinkoffTest {
 		// //////////////////////////////////////////////////////////////////////////////////
 		retryingFindClick(By.xpath("//*[text()='Коммунальные платежи']"));
 		// ////////////////////////////////////////////////////////////////////////////////////
+		
+		
 		WebElement region = wait.until(ExpectedConditions
 				.presenceOfElementLocated(By.xpath("//h1/span[2]")));
 		String regionValue = region.getText();
@@ -63,26 +65,38 @@ public class TinkoffTest {
 		// ////////////////////////////////////////////////////////////////////////////////////////
 		final List<String> errorPayerCodeValues = Arrays.asList("123",
 				"jhcdjc", "&^%#", "123cfdf43орп ус");
+		checkInputValues(errorPayerCodeValues, By.cssSelector("#payerCode"),
+				"Поле неправильно заполнено");
+		/*
+		 * checkInputValues(errorPayerCodeValues,
+		 * By.cssSelector("input[name='provider-period']"),
+		 * "Поле заполнено некорректно"); checkInputValues(
+		 * errorPayerCodeValues, By.cssSelector(
+		 * "div > div > div > div > div.ui-input.ui-input_error input"),
+		 * "Поле неправильно заполнено]");
+		 */
 
-		for (String inputValue : errorPayerCodeValues) {
-			retryingSendKeys(By.cssSelector("#payerCode"), inputValue);
-			retryingFindClick(By.cssSelector("button.ui-button_provider-pay"));
-			final WebElement errorMessage = wait.until(ExpectedConditions
-					.presenceOfElementLocated(By
-							.xpath("//form/div[1]/div/div[2]")));
-			assertEquals(errorMessage.getText(), "Поле неправильно заполнено");
-		}
-
-		final List<String> emptyPayerCodeValues = Arrays.asList("", " ", "	");
-		for (String inputValue : emptyPayerCodeValues) {
-			retryingSendKeys(By.cssSelector("#payerCode"), inputValue);
-			retryingFindClick(By.cssSelector("button.ui-button_provider-pay"));
-			final WebElement errorMessage = wait.until(ExpectedConditions
-					.presenceOfElementLocated(By
-							.xpath("//form/div[1]/div/div[2]")));
-			assertEquals(errorMessage.getText(), "Поле обязательное");
-		}
+		/*
+		 * final List<String> emptyPayerCodeValues = Arrays.asList("", " ",
+		 * "	"); checkInputValues(emptyPayerCodeValues,
+		 * By.cssSelector("#payerCode"), "Поле обязательное");
+		 */
 		// ///////////////////////////////////////////////////////////////////////////////////////////
+
+		retryingFindClick(By.cssSelector("div:nth-child(5) > a > span"));
+
+		// retryingSendKeys(By.cssSelector("span.ui-search-input__placeholder"),
+		// "ЖКУ-Москва");
+		final WebElement searchFiled = wait.until(
+				ExpectedConditions.presenceOfElementLocated(By
+						.cssSelector("input.ui-search-input__input")));
+		searchFiled.sendKeys("ЖКУ-Москва");
+		
+		final WebElement searchResult = wait.until(
+				ExpectedConditions.presenceOfElementLocated(By
+						.cssSelector("div:nth-child(1) > span div.ui-search-flat__title-box")));
+		assertEquals(searchResult.getText(), "ЖКУ-Москва");
+		
 		try {
 			Thread.sleep(5000);
 		} catch (InterruptedException e) {
@@ -126,4 +140,14 @@ public class TinkoffTest {
 		return result;
 	}
 
+	private void checkInputValues(List<String> data, By by, String errorMessage) {
+		for (String inputValue : data) {
+			retryingSendKeys(by, inputValue);
+			retryingFindClick(By.cssSelector("button.ui-button_provider-pay"));
+			final WebElement currentErrorMessage = wait
+					.until(ExpectedConditions.presenceOfElementLocated(By
+							.xpath("//form/div[1]/div/div[2]")));
+			assertEquals(currentErrorMessage.getText(), errorMessage);
+		}
+	}
 }
