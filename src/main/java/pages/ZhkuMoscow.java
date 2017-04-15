@@ -46,6 +46,7 @@ public class ZhkuMoscow extends CommonPage {
 	public String getInputErrorPayerCode(String inputValue) {
 		retryingSendKeys(PAYER_CODE_LOCATOR, inputValue);
 		retryingFindClick(PAY_BUTTON);
+		TimeUtil.sleepTimeoutSec(2);
 		return retryingFindElement(ERROR_PAYER_CODE_LOCATOR).getText();
 	}
 
@@ -57,6 +58,7 @@ public class ZhkuMoscow extends CommonPage {
 	public String getInputErrorPeriod(String inputValue) {
 		retryingSendKeys(PERIOD_LOCATOR, inputValue);
 		retryingFindClick(PAY_BUTTON);
+		TimeUtil.sleepTimeoutSec(2);
 		return retryingFindElement(ERROR_PERIOD_LOCATOR).getText();
 	}
 
@@ -68,6 +70,7 @@ public class ZhkuMoscow extends CommonPage {
 	public String getInputErrorPayment(String inputValue) {
 		retryingSendKeys(PAYMENT_LOCATOR, inputValue);
 		retryingFindClick(PAY_BUTTON);
+		TimeUtil.sleepTimeoutSec(2);
 		return retryingFindElement(ERROR_PAYMENT_LOCATOR).getText();
 	}
 }

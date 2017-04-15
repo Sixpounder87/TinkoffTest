@@ -35,6 +35,7 @@ public class PaymentPage extends CommonPage {
 
 	public void inputSearch(String inputValue) {
 		retryingSendKeys(SEARCH_LOCATOR, inputValue);
+		TimeUtil.sleepTimeoutSec(2);
 	}
 
 	public ZhkuMoscow chooseFirstProvider() {
