@@ -36,6 +36,9 @@ public class TinkoffTest {
 		driver = new ChromeDriver();
 	}
 
+	/**
+	 * Perform 1-6 steps from the task
+	 */
 	@Test
 	public void test01GetZhkuMoscowPaymentTab() {
 
@@ -53,6 +56,9 @@ public class TinkoffTest {
 		zhkuMoscow.getPayTab();
 	}
 
+	/**
+	 * Perform 7th step from the task. Check first field - payer code
+	 */
 	@Test(dataProvider = "payerCodeData")
 	public void test02ZhkuMoscowPayerCodeData(final String data,
 			final String errorMessage) {
@@ -64,6 +70,9 @@ public class TinkoffTest {
 		assertEquals(message, errorMessage);
 	}
 
+	/**
+	 * Perform 7th step from the task. Check second field - period
+	 */
 	@Test(dataProvider = "periodData")
 	public void test03ZhkuMoscowPeriodData(final String data,
 			final String errorMessage) {
@@ -75,6 +84,9 @@ public class TinkoffTest {
 		assertEquals(message, errorMessage);
 	}
 
+	/**
+	 * Perform 7th step from the task. Check third field - payment
+	 */
 	@Test(dataProvider = "paymentData")
 	public void test04ZhkuMoscowPaymentSumData(final String data,
 			final String errorMessage) {
@@ -88,6 +100,9 @@ public class TinkoffTest {
 		assertTrue(message.contains(errorMessage));
 	}
 
+	/**
+	 * Perform 8-11 steps from the task
+	 */
 	@Test
 	public void test05SearchProvider() {
 		driver.get(driver.getCurrentUrl());
@@ -100,6 +115,9 @@ public class TinkoffTest {
 		assertEquals(driver.getCurrentUrl(), paymentURL);
 	}
 
+	/**
+	 * Perform 12-14 steps from the task
+	 */
 	@Test
 	public void test06StPeterburg() {
 		driver.get(driver.getCurrentUrl());
