@@ -2,10 +2,8 @@ package pages;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
-import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.ui.WebDriverWait;
 
 import utils.TimeUtil;
 
@@ -32,7 +30,6 @@ public class CommunalPayments extends CommonPage {
 		}
 
 		this.driver = driver;
-		this.wait = new WebDriverWait(driver, TIMEOUTsec);
 	}
 
 	public CommunalPayments setMoscowRegion() {
@@ -55,6 +52,7 @@ public class CommunalPayments extends CommonPage {
 
 	private void setRegion(WebElement region, By by) {
 		region.click();
+		TimeUtil.sleepTimeoutSec(2);
 		if (!retryingFindClick(by)) {
 			throw new NoSuchElementException("Cannot click on the element");
 		}
@@ -83,7 +81,7 @@ public class CommunalPayments extends CommonPage {
 		WebElement element;
 		try {
 			element = retryingFindElement(ZHKU_MOSCOW_LOCATOR);
-		} catch (TimeoutException e) {
+		} catch (NoSuchElementException e) {
 			element = null;
 		}
 		return element;

@@ -7,8 +7,6 @@ import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
 
 import utils.TimeUtil;
 
@@ -19,8 +17,6 @@ public abstract class CommonPage {
 			.cssSelector("nav > div:nth-child(5) > a > span");
 
 	protected WebDriver driver;
-
-	protected WebDriverWait wait;
 
 	public PaymentPage getPaymentPage() {
 		if (!retryingFindClick(PAYMENTS_LOCATOR)) {
@@ -35,14 +31,12 @@ public abstract class CommonPage {
 	}
 
 	protected WebElement retryingFindElement(By by) {
-		return retryingGetWebElement(() -> wait.until(ExpectedConditions
-				.presenceOfElementLocated(by)));
+		return retryingGetWebElement(() -> driver.findElement(by));
 	}
 
 	protected boolean retryingSendKeys(By by, String inputeValue) {
 		return retryingWebElementAction(() -> {
-			final WebElement inputField = wait.until(ExpectedConditions
-					.presenceOfElementLocated(by));
+			final WebElement inputField = driver.findElement(by);
 			inputField.clear();
 			inputField.sendKeys(inputeValue);
 		});
@@ -54,7 +48,6 @@ public abstract class CommonPage {
 		while (attempts < 3) {
 			try {
 				action.run();
-				System.out.println("pressed");
 				result = true;
 				break;
 			} catch (StaleElementReferenceException e) {

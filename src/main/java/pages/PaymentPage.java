@@ -3,7 +3,6 @@ package pages;
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.support.ui.WebDriverWait;
 
 import utils.TimeUtil;
 
@@ -24,7 +23,6 @@ public class PaymentPage extends CommonPage {
 		}
 
 		this.driver = driver;
-		this.wait = new WebDriverWait(driver, TIMEOUTsec);
 	}
 
 	public CommunalPayments payCommunal() {

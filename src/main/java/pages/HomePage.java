@@ -1,7 +1,6 @@
 package pages;
 
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.support.ui.WebDriverWait;
 
 import utils.TimeUtil;
 
@@ -17,7 +16,5 @@ public class HomePage extends CommonPage {
 		}
 
 		this.driver = driver;
-		this.wait = new WebDriverWait(driver, TIMEOUTsec);
 	}
-
 }

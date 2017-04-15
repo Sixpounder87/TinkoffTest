@@ -3,7 +3,6 @@ package pages;
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.support.ui.WebDriverWait;
 
 import utils.TimeUtil;
 
@@ -34,7 +33,6 @@ public class ZhkuMoscow extends CommonPage {
 		}
 
 		this.driver = driver;
-		this.wait = new WebDriverWait(driver, TIMEOUTsec);
 	}
 
 	public ZhkuMoscow getPayTab() {
@@ -47,6 +45,7 @@ public class ZhkuMoscow extends CommonPage {
 
 	public String getInputErrorPayerCode(String inputValue) {
 		retryingSendKeys(PAYER_CODE_LOCATOR, inputValue);
+		retryingFindClick(PAY_BUTTON);
 		return retryingFindElement(ERROR_PAYER_CODE_LOCATOR).getText();
 	}
 
@@ -57,6 +56,7 @@ public class ZhkuMoscow extends CommonPage {
 
 	public String getInputErrorPeriod(String inputValue) {
 		retryingSendKeys(PERIOD_LOCATOR, inputValue);
+		retryingFindClick(PAY_BUTTON);
 		return retryingFindElement(ERROR_PERIOD_LOCATOR).getText();
 	}
 
