@@ -1,109 +1,113 @@
 package testcases;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertTrue;
 
-import java.util.Arrays;
-import java.util.List;
-
-import org.openqa.selenium.By;
-import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import pages.CommunalPayments;
+import pages.HomePage;
+import pages.PaymentPage;
+import pages.ZhkuMoscow;
 import utils.ReadPropertyData;
 
 public class TinkoffTest {
+
+	private final static String PROVIDER_NAME = "ЖКУ-Москва";
+	private final static String WRONG_FIELD_VALUE = "Поле неправильно заполнено";
+	private final static String MANDATORY_FIELD_VALUE = "Поле обязательное";
+	private final static String NOT_CORRECT_FIELD_VALUE = "Поле заполнено некорректно";
+	private final static String MIN_FIELD_VALUE = "Минимальная сумма перевода - 10";
+	private final static String MAX_FIELD_VALUE = "Максимальная сумма перевода - 15";
+
 	private WebDriver driver;
-	private WebDriverWait wait;
-	private final static int TIMEOUTsec = 20;
+	private String paymentURL;
 
 	@BeforeClass
 	public void preconditions() {
 		System.setProperty("webdriver.chrome.driver",
 				ReadPropertyData.getDriverPath());
 		driver = new ChromeDriver();
-		wait = new WebDriverWait(driver, TIMEOUTsec);
 	}
 
 	@Test
-	public void testTinkoff() {
+	public void test01GetZhkuMoscowPaymentTab() {
 
 		driver.get(ReadPropertyData.getBaseUrl());
-		// //////////////////////////////////////////////////////////////////////////////////
-		retryingFindClick(By.cssSelector("div:nth-child(5) > a > span"));
-		// //////////////////////////////////////////////////////////////////////////////////
-		retryingFindClick(By.xpath("//*[text()='Коммунальные платежи']"));
-		// ////////////////////////////////////////////////////////////////////////////////////
-		
-		
-		WebElement region = wait.until(ExpectedConditions
-				.presenceOfElementLocated(By.xpath("//h1/span[2]")));
-		String regionValue = region.getText();
 
-		if (!regionValue.equals("Москве")) {
-			region.click();
-			retryingFindClick(By.xpath("//div[2]/div[1]/div[1]/span"));
-		}
-		try {
-			Thread.sleep(2000);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		// //////////////////////////////////////////////////////////////////////////////////////////
-		final WebElement provider = wait.until(ExpectedConditions
-				.presenceOfElementLocated(By.xpath("//li[1]/a[2]/span")));
-		assertEquals(provider.getText(), "ЖКУ-Москва");
-		provider.click();
-		retryingFindClick(By.cssSelector("div > li:nth-child(2) span > span"));
-		// ////////////////////////////////////////////////////////////////////////////////////////
-		final List<String> errorPayerCodeValues = Arrays.asList("123",
-				"jhcdjc", "&^%#", "123cfdf43орп ус");
-		checkInputValues(errorPayerCodeValues, By.cssSelector("#payerCode"),
-				"Поле неправильно заполнено");
-		/*
-		 * checkInputValues(errorPayerCodeValues,
-		 * By.cssSelector("input[name='provider-period']"),
-		 * "Поле заполнено некорректно"); checkInputValues(
-		 * errorPayerCodeValues, By.cssSelector(
-		 * "div > div > div > div > div.ui-input.ui-input_error input"),
-		 * "Поле неправильно заполнено]");
-		 */
+		final HomePage homePage = new HomePage(driver);
+		final PaymentPage paymentPage = homePage.getPaymentPage();
+		final CommunalPayments communalPayments = paymentPage.payCommunal();
+		communalPayments.setMoscowRegion();
 
-		/*
-		 * final List<String> emptyPayerCodeValues = Arrays.asList("", " ",
-		 * "	"); checkInputValues(emptyPayerCodeValues,
-		 * By.cssSelector("#payerCode"), "Поле обязательное");
-		 */
-		// ///////////////////////////////////////////////////////////////////////////////////////////
+		assertEquals(communalPayments.getProviderName(), PROVIDER_NAME);
 
-		retryingFindClick(By.cssSelector("div:nth-child(5) > a > span"));
+		final ZhkuMoscow zhkuMoscow = communalPayments.getProviderPage();
+		paymentURL = driver.getCurrentUrl();
+		zhkuMoscow.getPayTab();
+	}
 
-		// retryingSendKeys(By.cssSelector("span.ui-search-input__placeholder"),
-		// "ЖКУ-Москва");
-		final WebElement searchFiled = wait.until(
-				ExpectedConditions.presenceOfElementLocated(By
-						.cssSelector("input.ui-search-input__input")));
-		searchFiled.sendKeys("ЖКУ-Москва");
-		
-		final WebElement searchResult = wait.until(
-				ExpectedConditions.presenceOfElementLocated(By
-						.cssSelector("div:nth-child(1) > span div.ui-search-flat__title-box")));
-		assertEquals(searchResult.getText(), "ЖКУ-Москва");
-		
-		try {
-			Thread.sleep(5000);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+	@Test(dataProvider = "payerCodeData")
+	public void test02ZhkuMoscowPayerCodeData(final String data,
+			final String errorMessage) {
 
+		driver.get(driver.getCurrentUrl());
+
+		final ZhkuMoscow zhkuMoscow = new ZhkuMoscow(driver);
+		final String message = zhkuMoscow.getInputErrorPayerCode(data);
+		assertEquals(message, errorMessage);
+	}
+
+	@Test(dataProvider = "periodData")
+	public void test03ZhkuMoscowPeriodData(final String data,
+			final String errorMessage) {
+
+		driver.get(driver.getCurrentUrl());
+
+		final ZhkuMoscow zhkuMoscow = new ZhkuMoscow(driver);
+		final String message = zhkuMoscow.getInputErrorPeriod(data);
+		assertEquals(message, errorMessage);
+	}
+
+	@Test(dataProvider = "paymentData")
+	public void test04ZhkuMoscowPaymentSumData(final String data,
+			final String errorMessage) {
+
+		driver.get(driver.getCurrentUrl());
+
+		final ZhkuMoscow zhkuMoscow = new ZhkuMoscow(driver);
+		zhkuMoscow.setPayerCode("2727637623");
+		zhkuMoscow.setPeriod("042017");
+		final String message = zhkuMoscow.getInputErrorPayment(data);
+		assertTrue(message.contains(errorMessage));
+	}
+
+	@Test
+	public void test05SearchProvider() {
+		driver.get(driver.getCurrentUrl());
+		final ZhkuMoscow zhkuMoscow = new ZhkuMoscow(driver);
+		final PaymentPage paymentPage = zhkuMoscow.getPaymentPage();
+		paymentPage.inputSearch(PROVIDER_NAME);
+		final String providerName = paymentPage.getFirstProviderName();
+		assertEquals(providerName, PROVIDER_NAME);
+		paymentPage.chooseFirstProvider();
+		assertEquals(driver.getCurrentUrl(), paymentURL);
+	}
+
+	@Test
+	public void test06StPeterburg() {
+		driver.get(driver.getCurrentUrl());
+		final ZhkuMoscow zhkuMoscow = new ZhkuMoscow(driver);
+		final PaymentPage paymentPage = zhkuMoscow.getPaymentPage();
+		final CommunalPayments communalPayments = paymentPage.payCommunal();
+		communalPayments.setPeterburgRegion();
+		assertNull(communalPayments.getZhkuMoscow());
 	}
 
 	@AfterClass
@@ -111,43 +115,24 @@ public class TinkoffTest {
 		driver.quit();
 	}
 
-	private boolean retryingFindClick(By by) {
-		return retryingWebElementAction(() -> wait.until(
-				ExpectedConditions.presenceOfElementLocated(by)).click());
+	@DataProvider
+	private String[][] payerCodeData() {
+		return new String[][] { { "123", WRONG_FIELD_VALUE },
+				{ "jhcdjc", WRONG_FIELD_VALUE }, { "&^%#", WRONG_FIELD_VALUE },
+				{ "123cfdf43орп ус", WRONG_FIELD_VALUE },
+				{ " ", MANDATORY_FIELD_VALUE } };
 	}
 
-	private boolean retryingSendKeys(By by, String inputeValue) {
-		return retryingWebElementAction(() -> {
-			final WebElement inputField = wait.until(ExpectedConditions
-					.presenceOfElementLocated(by));
-			inputField.clear();
-			inputField.sendKeys(inputeValue);
-		});
+	@DataProvider
+	private String[][] periodData() {
+		return new String[][] { { "456345", NOT_CORRECT_FIELD_VALUE },
+				{ "123", NOT_CORRECT_FIELD_VALUE },
+				{ "11.999", NOT_CORRECT_FIELD_VALUE } };
 	}
 
-	private boolean retryingWebElementAction(Runnable action) {
-		boolean result = false;
-		int attempts = 0;
-		while (attempts < 2) {
-			try {
-				action.run();
-				result = true;
-				break;
-			} catch (StaleElementReferenceException e) {
-				attempts++;
-			}
-		}
-		return result;
-	}
-
-	private void checkInputValues(List<String> data, By by, String errorMessage) {
-		for (String inputValue : data) {
-			retryingSendKeys(by, inputValue);
-			retryingFindClick(By.cssSelector("button.ui-button_provider-pay"));
-			final WebElement currentErrorMessage = wait
-					.until(ExpectedConditions.presenceOfElementLocated(By
-							.xpath("//form/div[1]/div/div[2]")));
-			assertEquals(currentErrorMessage.getText(), errorMessage);
-		}
+	@DataProvider
+	private String[][] paymentData() {
+		return new String[][] { { "20000\n", MAX_FIELD_VALUE },
+				{ "0\n", MIN_FIELD_VALUE } };
 	}
 }

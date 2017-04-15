@@ -6,7 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Properties;
 
-public class ReadPropertyData {
+public final class ReadPropertyData {
 	private static File file;
 	private static FileInputStream fileInput;
 	private static Properties properties;
